@@ -30,7 +30,7 @@ df['Date'] = pd.to_datetime(df['Date'], format='%d-%m-%Y', errors='coerce')
 df.dropna(subset=['Date', 'Reservoir_name', 'Level'], inplace=True)
 
 # Streamlit App
-st.title("🌊 Water Resources Management & Prediction (ARIMA Model)")
+st.title("🌊 Water Resources Management & Prediction")
 
 # Select reservoir
 reservoirs = df['Reservoir_name'].dropna().unique()
