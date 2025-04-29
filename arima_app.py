@@ -8,7 +8,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 from datetime import datetime
 
 # Load Dataset
-DATA_PATH = "D:/WM/data1.csv"
+DATA_PATH = "data1.csv"
 df = pd.read_csv(DATA_PATH)
 
 # Debugging: Check if data is loaded
