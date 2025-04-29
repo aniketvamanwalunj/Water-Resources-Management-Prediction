@@ -8,7 +8,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 from datetime import datetime
 
 # Load Dataset
-DATA_PATH = "data1.csv"
+DATA_PATH = "data.csv"
 df = pd.read_csv(DATA_PATH)
 
 # Debugging: Check if data is loaded
@@ -135,6 +135,6 @@ forecast_df = pd.DataFrame({"Date": future_dates, "Predicted Level": forecast.va
 st.write(forecast_df)
 
 # Save Predictions
-OUTPUT_PATH = "D:/WM/predicted_levels.csv"
+OUTPUT_PATH = "predicted_levels.csv"
 forecast_df.to_csv(OUTPUT_PATH, index=False)
 st.success(f"✅ Predictions saved to {OUTPUT_PATH}")
