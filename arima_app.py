@@ -17,7 +17,7 @@ if df.empty:
     st.stop()
 
 # Check required columns
-required_columns = ['Reservoir_name', 'Date', 'Level']
+required_columns = ['Reservoir_name', 'Date', 'Level', 'Lat', 'Long']
 if not all(col in df.columns for col in required_columns):
     st.error("Missing necessary columns in dataset. Check column names.")
     st.write("Available columns:", df.columns)
@@ -27,7 +27,7 @@ if not all(col in df.columns for col in required_columns):
 df['Date'] = pd.to_datetime(df['Date'], format='%d-%m-%Y', errors='coerce')
 
 # Drop missing values
-df.dropna(subset=['Date', 'Reservoir_name', 'Level'], inplace=True)
+df.dropna(subset=['Date', 'Reservoir_name', 'Level', 'Lat', 'Long'], inplace=True)
 
 # Streamlit App
 st.title("🌊 Water Resources Management & Prediction")
@@ -49,6 +49,10 @@ if df_reservoir.empty:
 # Ensure data is sorted
 df_reservoir = df_reservoir.sort_values(by='Date')
 
+# Take latest Lat and Long **before setting index**
+lat = df_reservoir['Lat'].values[0]
+lon = df_reservoir['Long'].values[0]
+
 # Set index for time-series analysis
 df_reservoir.set_index('Date', inplace=True)
 data = df_reservoir['Level']
@@ -58,8 +62,32 @@ if len(data) < 10:
     st.warning("Not enough data to train the model.")
     st.stop()
 
+# Spatial Map
+st.subheader(f"🗺️ Location of {selected_reservoir}")
+
+fig_map = px.scatter_mapbox(
+    lat=[lat],
+    lon=[lon],
+    zoom=7,
+    center={"lat": lat, "lon": lon},
+    height=500,
+    mapbox_style="open-street-map",
+)
+
+# Add big size marker + reservoir name on hover
+fig_map.update_traces(
+    marker=dict(size=20, color="red"),
+    hovertemplate="<b>Reservoir:</b> %{lat}, %{lon}<br><b>Name:</b> " + selected_reservoir
+)
+
+fig_map.update_layout(
+    margin={"r":0,"t":0,"l":0,"b":0},
+    title=f"Location: {selected_reservoir}"
+)
+st.plotly_chart(fig_map)
+
 # Interactive Plotly Visualization
-st.subheader(f"Reservoir Level Trend for {selected_reservoir}")
+st.subheader(f"📈 Reservoir Level Trend for {selected_reservoir}")
 fig = px.line(df_reservoir, x=df_reservoir.index, y='Level', title="Water Level Over Time")
 st.plotly_chart(fig)
 
@@ -88,7 +116,7 @@ st.metric(label="Mean Squared Error (MSE)", value=f"{mse:.2f}")
 st.metric(label="Root Mean Squared Error (RMSE)", value=f"{rmse:.2f}")
 
 # Plot Predictions
-st.subheader(f"📈 Forecast for {selected_reservoir}")
+st.subheader(f"📉 Forecast for {selected_reservoir}")
 plt.figure(figsize=(10, 5))
 plt.plot(data.index, data, label="Historical Data", color="blue")
 plt.plot(future_dates, forecast, label="Forecast", color="red", linestyle="dashed")
